@@ -1,15 +1,23 @@
-# Remove any old aliases that might conflict
-unalias cls c cRun cAssembly 2>/dev/null
+unalias nvim cls la cla c cRun cAssembly 2>/dev/null
 
-# Clear and list all files in pwd
+# Open NeoVim -- might be a better method for this xd
+nvim() { ~/nvim-macos-arm64/bin/nvim $1 }
+
+# Clear terminal and ls()
+cls() {clear; ls $1 $2}
+
+# list all files in directory
 #
-# what each parameter does:
+# what each paramter does:
 # -l: Long format, showing permissions, owner, size, and modification date.
-# -a: Lists all files, including hidden files (those starting with a dot .
+# -a: Lists all files, including hidden files
 # -F: Appends a symbol to each name indicating file type (e.g., / for directory, * for executable).
 # -G: Enables colored output for different file types.
 # -h: (Used with -l) Displays file sizes in human-readable format (KB, MB, GB).
-cls() { clear; ls -laFGh $1}
+la() {ls -laFGh $1 $2}
+
+# Clear terminal and la()
+cla() { clear; la $1 $2}
 
 # Compile a C file into an executable
 c() {
@@ -52,10 +60,10 @@ cAssembly() {
     return 1
   fi
 
-  # display the assembly
+  # display the assembly code
   cat "$basename.s"
 
-  # zsh prompt style (bash's read -p doesn't work)
+  # prompt user to keep or delete file
   read "ans?do you wish to save assembly file? [y/N]: "
 
   if [[ "$ans" == [Yy] ]]; then
