@@ -1,4 +1,5 @@
-unalias nvim cls la cla c cRun cAssembly 2>/dev/null
+# Remove any old aliases that might conflict
+unalias nvim cls la cla c cRun cAssembly killPort 2>/dev/null
 
 # Open NeoVim -- might be a better method for this xd
 nvim() { ~/nvim-macos-arm64/bin/nvim $1 }
@@ -71,5 +72,21 @@ cAssembly() {
   else
     rm -f "$basename.s"
     echo "discarded: $basename.s"
+  fi
+}
+
+# kill a process by port used
+killPort() {
+  if [ -z "$1" ]; then
+    echo "Usage: killPort <port>"
+    return 1
+  fi
+
+  pid=$(lsof -ti :$1)  # -t returns only the PID, -i filters by port
+  if [ -z "$pid" ]; then
+    echo "No process found on port $1"
+  else
+    echo "Killing process $pid on port $1"
+    kill -9 $pid
   fi
 }
