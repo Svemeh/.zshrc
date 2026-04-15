@@ -14,13 +14,13 @@ cls() {
 
 # list all files in directory
 la() {
-  ls -laFGh "$1" "$2"
+  ls -laFGh "${@:-.}"
 }
 
 # Clear terminal and run la()
 cla() {
   clear
-  la "$1" "$2"
+  la "${@:-.}"
 }
 
 # Compile a C file into an executable
