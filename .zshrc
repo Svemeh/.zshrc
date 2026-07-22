@@ -1,5 +1,5 @@
 # Remove any old aliases that might conflict
-unalias nvim cls la cla c cRun cAssembly killPort 2>/dev/null
+unalias nvim cls la cla getSuffix c cRun cAssembly killPort 2>/dev/null
 
 # Open NeoVim -- might be a better method for this xd
 nvim() { ~/nvim-macos-arm64/bin/nvim $1 }
@@ -20,19 +20,38 @@ la() {ls -laFGh $1 $2}
 # Clear terminal and la()
 cla() { clear; la $1 $2}
 
-# Compile a C file into an executable
+# Echos the file suffix. Used to determine file type.
+getSuffix() {
+  local file="$1"
+  [[ "$file" == *.* ]] && echo "${file##*.}"
+}
+
+# Compile a C or C++ file into an executable
+# @see get_ext()
 c() {
   local filename="$1"
   if [[ -z "$filename" ]]; then
-    echo "usage: c <file.c>"
+    echo "usage: c <file.c/cpp>"
     return 2
   fi
 
   local basename="${filename%.*}"
-  gcc -Wall -o "$basename" "$filename"
+  suffix=$(getSuffix "$filename")
+
+  case "$suffix" in
+    c)
+      gcc -Wall -o "$basename" "$filename"
+      ;;
+    cpp|cc|cxx)
+      g++ -Wall -o "$basename" "$filename"
+      ;;
+    *)
+      echo "given file type is not C or C++"
+      ;;
+  esac
 }
 
-# Compile a C file and immediately run the program
+# Compile a C or C++ file and immediately run the program
 # @see c()
 cRun() {
   local filename="$1"
@@ -77,16 +96,19 @@ cAssembly() {
 
 # kill a process by port used
 killPort() {
-  if [ -z "$1" ]; then
+  if [[ -z $1 ]]; then
     echo "Usage: killPort <port>"
     return 1
   fi
 
-  pid=$(lsof -ti :$1)  # -t returns only the PID, -i filters by port
-  if [ -z "$pid" ]; then
+  local -a pids
+  pids=($(lsof -ti :"$1"))
+
+  if (( ${#pids} == 0 )); then
     echo "No process found on port $1"
-  else
-    echo "Killing process $pid on port $1"
-    kill -9 $pid
+    return
   fi
+
+  echo "Killing PID(s): ${pids[*]}"
+  kill -9 "${pids[@]}"
 }
