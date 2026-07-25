@@ -1,8 +1,5 @@
 # Remove any old aliases that might conflict
-unalias nvim cls la cla getSuffix c cRun cAssembly killPort 2>/dev/null
-
-# Open NeoVim -- might be a better method for this xd
-nvim() { ~/nvim-macos-arm64/bin/nvim $1 }
+unalias cls la cla getSuffix c cRun cAssembly killPort 2>/dev/null
 
 # Clear terminal and ls()
 cls() {clear; ls $1 $2}
